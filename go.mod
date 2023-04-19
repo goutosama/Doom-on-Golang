@@ -1,4 +1,4 @@
-module godoom
+module github.com/fagirton/Doom-on-Golang
 
 go 1.18
 
