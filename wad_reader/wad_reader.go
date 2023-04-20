@@ -108,3 +108,13 @@ var Lump_class = map[string]int{ //можно поменять на срез и 
 	"REJECT":   9,
 	"BLOCKMAP": 10,
 }
+
+func (s WadReader) Get_Vertex_data(directory []Lump, index int, num_bytes int, header_length int) []Vertex {
+	l := directory[index]
+	var Lump_data []Vertex
+	for i := 0; i < int(l.size); i++ {
+		offset := int(l.offset) + i*num_bytes + header_length
+		Lump_data = append(Lump_data, s.ReadVertex(int64(offset)))
+	}
+	return Lump_data
+}
