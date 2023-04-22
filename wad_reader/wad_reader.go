@@ -57,14 +57,14 @@ func (s WadReader) ReadHeader() Header {
 }
 
 type Lump struct {
-	offset int32
-	size   int32
-	name   string
+	Offset int32
+	Size   int32
+	Name   string
 }
 
 func (s WadReader) Find_lump_index_by_name(directory []Lump, n string) int {
 	for i := 0; i < len(directory); i++ {
-		if directory[i].name == n {
+		if directory[i].Name == n {
 			return i
 		}
 	}
@@ -80,24 +80,46 @@ func (s WadReader) ReadDirectory(h Header) []Lump {
 			name = strings.TrimSuffix(name, "\x00")
 		}
 		l := Lump{
-			offset: s.ReadInt32(curr_offset),
-			size:   s.ReadInt32(curr_offset + 4),
-			name:   name,
+			Offset: s.ReadInt32(curr_offset),
+			Size:   s.ReadInt32(curr_offset + 4),
+			Name:   name,
 		}
 		directory = append(directory, l)
 	}
 	return directory
 }
 
+func (s WadReader) ReadLinedef(offset int64) Linedef {
+	return Linedef{
+		St_Vertex:  s.ReadInt16(offset),
+		End_Vertex: s.ReadInt16(offset + 2),
+		Flags:      s.ReadInt16(offset + 4),
+		Linetype:   s.ReadInt16(offset + 6),
+		Sector_tag: s.ReadInt16(offset + 8),
+		F_Sidedef:  s.ReadInt16(offset + 10),
+		B_Sidedef:  s.ReadInt16(offset + 12),
+	}
+}
+
+func (s WadReader) Get_Linedef_data(directory []Lump, index_of_map int, header_length int) []Linedef {
+	l := directory[index_of_map+Lump_class["LINEDEFS"]]
+	var Lump_data []Linedef
+	for i := 0; i < (int(l.Size) / 14); i++ {
+		offset := int(l.Offset) + i*14 + header_length
+		Lump_data = append(Lump_data, s.ReadLinedef(int64(offset)))
+	}
+	return Lump_data
+}
+
 type Vertex struct {
-	x int16
-	y int16
+	X int16
+	Y int16
 }
 
 func (s WadReader) ReadVertex(offset int64) Vertex {
 	return Vertex{
-		x: s.ReadInt16(offset),
-		y: s.ReadInt16(offset + 2),
+		X: s.ReadInt16(offset),
+		Y: s.ReadInt16(offset + 2),
 	}
 }
 
@@ -114,12 +136,68 @@ var Lump_class = map[string]int{ //можно поменять на срез и 
 	"BLOCKMAP": 10,
 }
 
-func (s WadReader) Get_Vertex_data(directory []Lump, index int, num_bytes int, header_length int) []Vertex {
-	l := directory[index]
+func (s WadReader) Get_Vertex_data(directory []Lump, index_of_map int, header_length int) []Vertex {
+	l := directory[index_of_map+Lump_class["VERTEXES"]]
 	var Lump_data []Vertex
-	for i := 0; i < int(l.size); i++ {
-		offset := int(l.offset) + i*num_bytes + header_length
+	for i := 0; i < (int(l.Size) / 4); i++ {
+		offset := int(l.Offset) + i*4 + header_length
 		Lump_data = append(Lump_data, s.ReadVertex(int64(offset)))
 	}
 	return Lump_data
+}
+
+func Merge(a []int, b []int) []int {
+	c := []int{}
+	var i int = 0
+	var j int = 0
+	for k := 0; k < len(a)+len(b); k++ {
+		if (j == len(b)) || ((i < len(a)) && (a[i] <= b[j])) {
+			c = append(c, a[i])
+			i++
+		} else {
+			c = append(c, b[j])
+			j++
+		}
+	}
+	return c
+}
+
+func Merge_sort(v []int) []int {
+	if len(v) <= 1 {
+		return v
+	}
+	left := Merge_sort(v[:len(v)/2])
+	right := Merge_sort(v[len(v)/2:])
+	return Merge(left, right)
+}
+
+func Get_Map_Bounds(v []Vertex) []Vertex {
+	var xes []int
+	var yes []int
+	for i := 0; i < len(v); i++ {
+		xes = append(xes, int(v[i].X))
+		yes = append(yes, int(v[i].Y))
+	}
+	xes = Merge_sort(xes)
+	yes = Merge_sort(yes)
+	return []Vertex{
+		{
+			X: int16(xes[0]),
+			Y: int16(yes[0]),
+		},
+		{
+			X: int16(xes[len(xes)-1]),
+			Y: int16(yes[len(yes)-1]),
+		},
+	}
+}
+
+type Linedef struct {
+	St_Vertex  int16
+	End_Vertex int16
+	Flags      int16
+	Linetype   int16
+	Sector_tag int16
+	F_Sidedef  int16
+	B_Sidedef  int16
 }
