@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"io"
 	"os"
+	"strings"
 )
 
 type WadReader struct {
@@ -74,10 +75,14 @@ func (s WadReader) ReadDirectory(h Header) []Lump {
 	var directory []Lump
 	for i := 0; i < int(h.lumps_number); i++ {
 		curr_offset := int64(h.table_offset) + int64(i*16)
+		name := s.ReadString(curr_offset+8, 8)
+		for strings.HasSuffix(name, "\x00") {
+			name = strings.TrimSuffix(name, "\x00")
+		}
 		l := Lump{
 			offset: s.ReadInt32(curr_offset),
 			size:   s.ReadInt32(curr_offset + 4),
-			name:   s.ReadString(curr_offset+8, 8),
+			name:   name,
 		}
 		directory = append(directory, l)
 	}

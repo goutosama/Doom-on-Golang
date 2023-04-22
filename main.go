@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 
-	map_render "github.com/fagirton/Doom-on-Golang/map_render"
 	wad "github.com/fagirton/Doom-on-Golang/wad_reader"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -26,7 +25,8 @@ var (
 
 func init() {
 	reader := wad.NewReader("doom1.wad")
-	map_render.Render_Map(reader)
+	directory := reader.ReadDirectory(reader.ReadHeader())
+
 	num1 = reader.ReadString(0, 4)
 	num2 = reader.ReadInt32(4)
 	num3 = reader.ReadInt32(8)
