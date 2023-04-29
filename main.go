@@ -5,6 +5,7 @@ import (
 	"log"
 
 	map_render "github.com/fagirton/Doom-on-Golang/render"
+	vars "github.com/fagirton/Doom-on-Golang/vars"
 	wad "github.com/fagirton/Doom-on-Golang/wad_reader"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -17,12 +18,6 @@ var (
 	num3 int32
 )
 
-var (
-	DOOM_RES          = []int{320, 200}
-	SCALE             = float32(4.0)
-	WIN_RES           = []int{DOOM_RES[0] * int(SCALE), DOOM_RES[1] * int(SCALE)}
-	H_wIDTH, H_HEIGHT = WIN_RES[0] / 2, WIN_RES[1] / 2
-)
 var (
 	reader       = wad.NewReader("doom1.wad")
 	directory    = reader.ReadDirectory(reader.ReadHeader())
@@ -47,15 +42,15 @@ func (g *Game) Update() error {
 
 func (g *Game) Draw(screen *ebiten.Image) {
 	ebitenutil.DebugPrint(screen, num1)
-	map_render.Render_Map(screen, VertexesE1M1, LinedefsE1M1)
+	map_render.Render_Map(screen, VertexesE1M1, LinedefsE1M1, wad.Vertex{X: 0, Y: -50})
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	return WIN_RES[0], WIN_RES[1]
+	return vars.WIN_RES[0], vars.WIN_RES[1]
 }
 
 func main() {
-	ebiten.SetWindowSize(int(WIN_RES[0]), int(WIN_RES[1]))
+	ebiten.SetWindowSize(int(vars.WIN_RES[0]), int(vars.WIN_RES[1]))
 	ebiten.SetWindowTitle("Hello, World!")
 	if err := ebiten.RunGame(&Game{}); err != nil {
 		log.Fatal(err)

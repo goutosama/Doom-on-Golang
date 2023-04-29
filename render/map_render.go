@@ -93,11 +93,11 @@ func RemapVertexes(v []wad.Vertex) []wad.Vertex {
 	return v
 }
 
-func Render_Map(image *ebiten.Image, Vertexes []wad.Vertex, Linedefs []wad.Linedef) {
+func Render_Map(image *ebiten.Image, Vertexes []wad.Vertex, Linedefs []wad.Linedef, offset wad.Vertex) {
 	for i := 0; i < len(Vertexes); i++ {
-		vector.DrawFilledCircle(image, float32(Vertexes[i].X), float32(Vertexes[i].Y), 1, color.White, true)
+		vector.DrawFilledCircle(image, float32(Vertexes[i].X)+float32(offset.X), float32(Vertexes[i].Y)+float32(offset.Y), 1, color.White, true)
 	}
 	for i := 0; i < len(Linedefs); i++ {
-		vector.StrokeLine(image, float32(Vertexes[Linedefs[i].St_Vertex].X), float32(Vertexes[Linedefs[i].St_Vertex].Y), float32(Vertexes[Linedefs[i].End_Vertex].X), float32(Vertexes[Linedefs[i].End_Vertex].Y), 2, color.White, true)
+		vector.StrokeLine(image, float32(Vertexes[Linedefs[i].St_Vertex].X)+float32(offset.X), float32(Vertexes[Linedefs[i].St_Vertex].Y)+float32(offset.Y), float32(Vertexes[Linedefs[i].End_Vertex].X)+float32(offset.X), float32(Vertexes[Linedefs[i].End_Vertex].Y)+float32(offset.Y), 2, color.White, true)
 	}
 }
