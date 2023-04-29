@@ -98,6 +98,6 @@ func Render_Map(image *ebiten.Image, Vertexes []wad.Vertex, Linedefs []wad.Lined
 		vector.DrawFilledCircle(image, float32(Vertexes[i].X)+float32(offset.X), float32(Vertexes[i].Y)+float32(offset.Y), 1, color.White, true)
 	}
 	for i := 0; i < len(Linedefs); i++ {
-		vector.StrokeLine(image, float32(Vertexes[Linedefs[i].St_Vertex].X)+float32(offset.X), float32(Vertexes[Linedefs[i].St_Vertex].Y)+float32(offset.Y), float32(Vertexes[Linedefs[i].End_Vertex].X)+float32(offset.X), float32(Vertexes[Linedefs[i].End_Vertex].Y)+float32(offset.Y), 2, color.White, true)
+		vector.StrokeLine(image, float32(Vertexes[Linedefs[i].Get_St_vertex()].X)+float32(offset.X), float32(Vertexes[Linedefs[i].Get_St_vertex()].Y)+float32(offset.Y), float32(Vertexes[Linedefs[i].Get_End_vertex()].X)+float32(offset.X), float32(Vertexes[Linedefs[i].Get_End_vertex()].Y)+float32(offset.Y), 2, color.White, true)
 	}
 }
